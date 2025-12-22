@@ -10,6 +10,6 @@ import org.springframework.web.context.request.WebRequest;
  */
 public interface RequestParser<Request> {
 
-    public abstract Request parse(WebRequest webRequest);
+    Request parse(String requestBody, WebRequest webRequest);
 
 }
