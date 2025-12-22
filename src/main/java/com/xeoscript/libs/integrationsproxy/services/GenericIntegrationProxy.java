@@ -20,8 +20,8 @@ public final class GenericIntegrationProxy<Request, APIResponse, Response>
 
 
     @Override
-    protected Request parseRequest(WebRequest webRequest) {
-        return requestParser.parse(webRequest);
+    protected Request parseRequest(String requestBody, WebRequest webRequest) {
+        return requestParser.parse(requestBody, webRequest);
     }
 
     @Override

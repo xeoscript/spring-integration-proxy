@@ -27,7 +27,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param webRequest The incoming web request
      * @return The parsed request object
      */
-    protected abstract Request parseRequest(WebRequest webRequest);
+    protected abstract Request parseRequest(String requestBody, WebRequest webRequest);
 
     /**
      * Validate the parsed request to ensure it meets the required criteria
@@ -98,8 +98,8 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      */
     protected abstract String serializeResponse(Response response);
 
-    public String processRequest(WebRequest webRequest) {
-        Request request = parseRequest(webRequest);
+    public String processRequest(String requestBody, WebRequest webRequest) {
+        Request request = parseRequest(requestBody, webRequest);
         validateRequest(request);
 
         APIResponse apiResponse = performAPI(request);
