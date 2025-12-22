@@ -76,10 +76,11 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * 1. Map API response fields to final response fields
      * 2. Handle any additional processing needed for the final response
      *
+     * @param request The original request object
      * @param apiResponse The validated API response object
      * @return The final response object
      */
-    protected abstract Response generateResponse(APIResponse apiResponse);
+    protected abstract Response generateResponse(Request request, APIResponse apiResponse);
 
     /**
      * Serialize the final response object to a string format for returning to the client.
@@ -104,7 +105,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
         APIResponse apiResponse = performAPI(request);
         validateAPIResponse(apiResponse);
 
-        Response response = generateResponse(apiResponse);
+        Response response = generateResponse(request, apiResponse);
 
         return serializeResponse(response);
     }
