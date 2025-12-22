@@ -39,7 +39,8 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      *
      * @param request The parsed request object
      */
-    protected abstract void validateRequest(Request request);
+    protected void validateRequest(Request request) {
+    }
 
 
     /**
@@ -66,7 +67,8 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      *
      * @param apiResponse The API response object
      */
-    protected abstract void validateAPIResponse(APIResponse apiResponse);
+    protected void validateAPIResponse(APIResponse apiResponse) {
+    }
 
     /**
      * Generate the final response object from the validated API response
