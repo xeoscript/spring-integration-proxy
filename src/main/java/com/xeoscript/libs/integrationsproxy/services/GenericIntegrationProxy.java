@@ -40,7 +40,7 @@ public final class GenericIntegrationProxy<Request, APIResponse, Response>
     }
 
     @Override
-    protected Response generateResponse(Object apiResponse) {
+    protected Response generateResponse(Request request, APIResponse apiResponse) {
         return null;
     }
 
