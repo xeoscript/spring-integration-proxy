@@ -82,12 +82,15 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
     protected abstract Response generateResponse(APIResponse apiResponse);
 
     /**
-     * Serialize the final response object to a string format for returning to the client
+     * Serialize the final response object to a string format for returning to the client.
+     * Any Encryption and Signing needs to be handled here
      *
      * <p>
      * Responsibilities
      * 1. Convert the response object to JSON/XML/other formats as needed
      * 2. Handle any serialization errors
+     * 3. Encrypt the response if needed
+     * 4. Sign the response if needed
      *
      * @param response The final response object
      * @return The serialized response string
