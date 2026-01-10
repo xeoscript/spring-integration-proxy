@@ -1,9 +1,14 @@
 package com.xeoscript.libs.integrationsproxy.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.WebRequest;
 
+@Slf4j
 public abstract class IntegrationProxyService<Request, APIResponse, Response> {
 
+    // ---------------------------------------------
+    //   Steps Involved in Processing the Request
+    // ---------------------------------------------
     // 1. Parse the Request
     // 2. Validate the Request
     // 3. Send the Request to the Proxy Endpoint
@@ -100,7 +105,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      */
     protected abstract String serializeResponse(Response response);
 
-    public String processRequest(String requestBody, WebRequest webRequest) {
+    public final String processRequest(String requestBody, WebRequest webRequest) {
         Request request = parseRequest(requestBody, webRequest);
         validateRequest(request);
 
