@@ -9,15 +9,16 @@ public abstract class NoDAOIntegrationProxyService<Request, APIResponse, Respons
     // ---------------------------------------------
     //   Steps Involved in Processing the Request
     // ---------------------------------------------
-    // 1. Parse the Request
-    // 2. Validate the Request
-    // 3. Send the Request to the Proxy Endpoint
-    // 4. Receive the Response from the Proxy Endpoint
-    // 5. Parse the Response
-    // 6. Validate the Response
-    // 7. Create the final Response object
-    // 8. Serialize the final Response object
-    // 9. Return the serialized Response
+    // 1. Create a new Request Number
+    // 2. Parse the Request
+    // 3. Validate the Request
+    // 4. Send the Request to the Proxy Endpoint
+    // 5. Receive the Response from the Proxy Endpoint
+    // 6. Parse the Response
+    // 7. Validate the Response
+    // 8. Create the final Response object
+    // 9. Serialize the final Response object
+    // 10. Return the serialized Response
 
     /**
      * Parse the incoming web request to extract the request details
