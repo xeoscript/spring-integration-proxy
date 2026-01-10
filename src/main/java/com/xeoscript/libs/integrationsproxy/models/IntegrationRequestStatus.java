@@ -1,5 +1,6 @@
 package com.xeoscript.libs.integrationsproxy.models;
 
+import com.xeoscript.libs.integrationsproxy.enums.IntegrationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,7 +34,7 @@ public class IntegrationRequestStatus<Request, APIResponse, Response> {
     private String serializedResponseBody;
 
     // Status Tracking
-    private String currentStatus; // INITIAL, PARSED, VALIDATED, API_CALLED, API_VALIDATED, RESPONSE_GENERATED, COMPLETED, ERROR
+    private IntegrationStatus currentStatus; // INITIAL, PARSED, VALIDATED, API_CALLED, API_VALIDATED, RESPONSE_GENERATED, COMPLETED, ERROR
 
     // Timestamps for each step
     private Date requestReceivedAt;
