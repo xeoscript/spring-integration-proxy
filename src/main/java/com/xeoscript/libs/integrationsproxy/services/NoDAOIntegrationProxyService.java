@@ -123,6 +123,8 @@ public abstract class NoDAOIntegrationProxyService<Request, APIResponse, Respons
     protected abstract String serializeResponse(Response response);
 
     public final String processRequest(String requestBody, WebRequest webRequest) {
+        log.debug("[{}] - Incoming request body: {}", name, requestBody);
+
         String requestNumber;
         try {
             requestNumber = generateRequestNumber();
@@ -136,6 +138,7 @@ public abstract class NoDAOIntegrationProxyService<Request, APIResponse, Respons
         try {
             request = parseRequest(requestBody, webRequest);
             log.debug("[{}] [{}] - Request parsed successfully", name, requestNumber);
+            log.debug("[{}] [{}] - Parsed request object: {}", name, requestNumber, request);
         } catch (Exception e) {
             log.error("[{}] [{}] - Error parsing request", name, requestNumber, e);
             throw new RuntimeException("Failed to parse request", e);
@@ -153,6 +156,7 @@ public abstract class NoDAOIntegrationProxyService<Request, APIResponse, Respons
         try {
             apiResponse = performAPI(request);
             log.debug("[{}] [{}] - API call completed successfully", name, requestNumber);
+            log.debug("[{}] [{}] - API response: {}", name, requestNumber, apiResponse);
         } catch (Exception e) {
             log.error("[{}] [{}] - Error performing API call", name, requestNumber, e);
             throw new RuntimeException("Failed to perform API call", e);
@@ -170,6 +174,7 @@ public abstract class NoDAOIntegrationProxyService<Request, APIResponse, Respons
         try {
             response = generateResponse(request, apiResponse);
             log.debug("[{}] [{}] - Response generated successfully", name, requestNumber);
+            log.debug("[{}] [{}] - Generated response object: {}", name, requestNumber, response);
         } catch (Exception e) {
             log.error("[{}] [{}] - Error generating response", name, requestNumber, e);
             throw new RuntimeException("Failed to generate response", e);
@@ -178,6 +183,7 @@ public abstract class NoDAOIntegrationProxyService<Request, APIResponse, Respons
         try {
             String serializedResponse = serializeResponse(response);
             log.debug("[{}] [{}] - Response serialized successfully", name, requestNumber);
+            log.debug("[{}] [{}] - Final response body: {}", name, requestNumber, serializedResponse);
             return serializedResponse;
         } catch (Exception e) {
             log.error("[{}] [{}] - Error serializing response", name, requestNumber, e);
