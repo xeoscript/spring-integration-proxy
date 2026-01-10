@@ -1,10 +1,18 @@
 package com.xeoscript.libs.integrationsproxy.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.request.WebRequest;
 
 @Slf4j
 public abstract class IntegrationProxyService<Request, APIResponse, Response> {
+
+    protected IntegrationProxyDAOService<Request, APIResponse, Response> daoService;
+
+    @Autowired(required = false)
+    public void setDaoService(IntegrationProxyDAOService<Request, APIResponse, Response> daoService) {
+        this.daoService = daoService;
+    }
 
     /**
      * Get the name of this integration proxy service for logging purposes
