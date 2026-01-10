@@ -1,5 +1,6 @@
 package com.xeoscript.libs.integrationsproxy.services;
 
+import com.xeoscript.libs.integrationsproxy.models.IntegrationRequestStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.request.WebRequest;
@@ -12,6 +13,19 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
     @Autowired(required = false)
     public void setDaoService(IntegrationProxyDAOService<Request, APIResponse, Response> daoService) {
         this.daoService = daoService;
+    }
+
+    /**
+     * Get the current status of a request by request number
+     *
+     * @param requestNumber The request number to fetch
+     * @return The IntegrationRequestStatus object containing all status information, or null if DAO service is not available
+     */
+    public IntegrationRequestStatus<Request, APIResponse, Response> getRequestStatus(String requestNumber) {
+        if (daoService != null) {
+            return daoService.getRequestStatus(requestNumber);
+        }
+        return null;
     }
 
     /**
@@ -144,6 +158,9 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param requestBody   The raw request body
      */
     protected void saveInitialRequest(String requestNumber, String requestBody) {
+        if (daoService != null) {
+            daoService.saveInitialRequest(requestNumber, requestBody);
+        }
     }
 
     /**
@@ -153,6 +170,9 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param request       The parsed request object
      */
     protected void saveRequestParsed(String requestNumber, Request request) {
+        if (daoService != null) {
+            daoService.saveRequestParsed(requestNumber, request);
+        }
     }
 
     /**
@@ -162,6 +182,9 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param request       The validated request object
      */
     protected void saveRequestValidated(String requestNumber, Request request) {
+        if (daoService != null) {
+            daoService.saveRequestValidated(requestNumber, request);
+        }
     }
 
     /**
@@ -171,6 +194,9 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param request       The request object being sent to API
      */
     protected void saveBeforeAPICall(String requestNumber, Request request) {
+        if (daoService != null) {
+            daoService.saveBeforeAPICall(requestNumber, request);
+        }
     }
 
     /**
@@ -180,6 +206,9 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param apiResponse   The API response received
      */
     protected void saveAPIResponse(String requestNumber, APIResponse apiResponse) {
+        if (daoService != null) {
+            daoService.saveAPIResponse(requestNumber, apiResponse);
+        }
     }
 
     /**
@@ -189,6 +218,9 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param apiResponse   The validated API response
      */
     protected void saveAPIResponseValidated(String requestNumber, APIResponse apiResponse) {
+        if (daoService != null) {
+            daoService.saveAPIResponseValidated(requestNumber, apiResponse);
+        }
     }
 
     /**
@@ -198,6 +230,9 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param response      The generated response object
      */
     protected void saveResponseGenerated(String requestNumber, Response response) {
+        if (daoService != null) {
+            daoService.saveResponseGenerated(requestNumber, response);
+        }
     }
 
     /**
@@ -207,6 +242,9 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param serializedResponse The final serialized response string
      */
     protected void saveFinalResponse(String requestNumber, String serializedResponse) {
+        if (daoService != null) {
+            daoService.saveFinalResponse(requestNumber, serializedResponse);
+        }
     }
 
     /**
@@ -217,6 +255,9 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param error         The exception that occurred
      */
     protected void saveError(String requestNumber, String step, Exception error) {
+        if (daoService != null) {
+            daoService.saveError(requestNumber, step, error);
+        }
     }
 
     public final String processRequest(String requestBody, WebRequest webRequest) {
