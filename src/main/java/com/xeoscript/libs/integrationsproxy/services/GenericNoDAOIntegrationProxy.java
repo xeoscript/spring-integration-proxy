@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.context.request.WebRequest;
 
 @RequiredArgsConstructor
-public final class GenericIntegrationProxy<Request, APIResponse, Response>
-        extends IntegrationProxyService<Request, APIResponse, Response> {
+public final class GenericNoDAOIntegrationProxy<Request, APIResponse, Response>
+        extends NoDAOIntegrationProxyService<Request, APIResponse, Response> {
 
     private final RequestParser<Request> requestParser;
 

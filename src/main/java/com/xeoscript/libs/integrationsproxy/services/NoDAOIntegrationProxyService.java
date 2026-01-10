@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.WebRequest;
 
 @Slf4j
-public abstract class IntegrationProxyService<Request, APIResponse, Response> {
+public abstract class NoDAOIntegrationProxyService<Request, APIResponse, Response> {
 
     // ---------------------------------------------
     //   Steps Involved in Processing the Request
