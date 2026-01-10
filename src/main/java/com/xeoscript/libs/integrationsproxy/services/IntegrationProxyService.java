@@ -6,7 +6,7 @@ import org.springframework.web.context.request.WebRequest;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class NoDAOIntegrationProxyService<Request, APIResponse, Response> {
+public abstract class IntegrationProxyService<Request, APIResponse, Response> {
 
     private final String name;
 

@@ -5,8 +5,8 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.util.Objects;
 
-public final class GenericNoDAOIntegrationProxy<Request, APIResponse, Response>
-        extends NoDAOIntegrationProxyService<Request, APIResponse, Response> {
+public final class GenericIntegrationProxy<Request, APIResponse, Response>
+        extends IntegrationProxyService<Request, APIResponse, Response> {
 
     private final RequestNumberGenerator requestNumberGenerator;
 
@@ -20,7 +20,7 @@ public final class GenericNoDAOIntegrationProxy<Request, APIResponse, Response>
 
     private final ResponseSerializer<Response> responseSerializer;
 
-    public GenericNoDAOIntegrationProxy(
+    public GenericIntegrationProxy(
             String name,
             RequestNumberGenerator requestNumberGenerator,
             RequestParser<Request> requestParser,
