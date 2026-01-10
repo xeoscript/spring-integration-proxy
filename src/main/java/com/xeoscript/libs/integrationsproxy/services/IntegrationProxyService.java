@@ -125,6 +125,92 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      */
     protected abstract String serializeResponse(Response response);
 
+    // ---------------------------------------------
+    //   DAO Methods for Persisting Request/Response Status
+    // ---------------------------------------------
+
+    /**
+     * Save the initial request with generated request number
+     *
+     * @param requestNumber The generated request number
+     * @param requestBody   The raw request body
+     */
+    protected void saveInitialRequest(String requestNumber, String requestBody) {
+    }
+
+    /**
+     * Update status after request parsing
+     *
+     * @param requestNumber The request number
+     * @param request       The parsed request object
+     */
+    protected void saveRequestParsed(String requestNumber, Request request) {
+    }
+
+    /**
+     * Update status after request validation
+     *
+     * @param requestNumber The request number
+     * @param request       The validated request object
+     */
+    protected void saveRequestValidated(String requestNumber, Request request) {
+    }
+
+    /**
+     * Update status before making API call
+     *
+     * @param requestNumber The request number
+     * @param request       The request object being sent to API
+     */
+    protected void saveBeforeAPICall(String requestNumber, Request request) {
+    }
+
+    /**
+     * Update status after receiving API response
+     *
+     * @param requestNumber The request number
+     * @param apiResponse   The API response received
+     */
+    protected void saveAPIResponse(String requestNumber, APIResponse apiResponse) {
+    }
+
+    /**
+     * Update status after API response validation
+     *
+     * @param requestNumber The request number
+     * @param apiResponse   The validated API response
+     */
+    protected void saveAPIResponseValidated(String requestNumber, APIResponse apiResponse) {
+    }
+
+    /**
+     * Update status after generating final response
+     *
+     * @param requestNumber The request number
+     * @param response      The generated response object
+     */
+    protected void saveResponseGenerated(String requestNumber, Response response) {
+    }
+
+    /**
+     * Update status with final serialized response
+     *
+     * @param requestNumber      The request number
+     * @param serializedResponse The final serialized response string
+     */
+    protected void saveFinalResponse(String requestNumber, String serializedResponse) {
+    }
+
+    /**
+     * Save error details when an exception occurs
+     *
+     * @param requestNumber The request number (may be null if error during generation)
+     * @param step          The step where error occurred
+     * @param error         The exception that occurred
+     */
+    protected void saveError(String requestNumber, String step, Exception error) {
+    }
+
     public final String processRequest(String requestBody, WebRequest webRequest) {
         String name = getName();
         log.debug("[{}] - Incoming request body: {}", name, requestBody);
@@ -133,8 +219,11 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
         try {
             requestNumber = generateRequestNumber();
             log.debug("[{}] [{}] - Request number generated", name, requestNumber);
+            saveInitialRequest(requestNumber, requestBody);
+            log.debug("[{}] [{}] - Initial request saved to database", name, requestNumber);
         } catch (Exception e) {
             log.error("[{}] - Error generating request number", name, e);
+            saveError(null, "generateRequestNumber", e);
             throw new RuntimeException("Failed to generate request number", e);
         }
 
@@ -143,34 +232,48 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
             request = parseRequest(requestBody, webRequest);
             log.debug("[{}] [{}] - Request parsed successfully", name, requestNumber);
             log.debug("[{}] [{}] - Parsed request object: {}", name, requestNumber, request);
+            saveRequestParsed(requestNumber, request);
+            log.debug("[{}] [{}] - Parsed request saved to database", name, requestNumber);
         } catch (Exception e) {
             log.error("[{}] [{}] - Error parsing request", name, requestNumber, e);
+            saveError(requestNumber, "parseRequest", e);
             throw new RuntimeException("Failed to parse request", e);
         }
 
         try {
             validateRequest(request);
             log.debug("[{}] [{}] - Request validated successfully", name, requestNumber);
+            saveRequestValidated(requestNumber, request);
+            log.debug("[{}] [{}] - Validated request saved to database", name, requestNumber);
         } catch (Exception e) {
             log.error("[{}] [{}] - Request validation failed", name, requestNumber, e);
+            saveError(requestNumber, "validateRequest", e);
             throw new RuntimeException("Request validation failed", e);
         }
 
         APIResponse apiResponse;
         try {
+            saveBeforeAPICall(requestNumber, request);
+            log.debug("[{}] [{}] - Request saved before API call", name, requestNumber);
             apiResponse = performAPI(request);
             log.debug("[{}] [{}] - API call completed successfully", name, requestNumber);
             log.debug("[{}] [{}] - API response: {}", name, requestNumber, apiResponse);
+            saveAPIResponse(requestNumber, apiResponse);
+            log.debug("[{}] [{}] - API response saved to database", name, requestNumber);
         } catch (Exception e) {
             log.error("[{}] [{}] - Error performing API call", name, requestNumber, e);
+            saveError(requestNumber, "performAPI", e);
             throw new RuntimeException("Failed to perform API call", e);
         }
 
         try {
             validateAPIResponse(apiResponse);
             log.debug("[{}] [{}] - API response validated successfully", name, requestNumber);
+            saveAPIResponseValidated(requestNumber, apiResponse);
+            log.debug("[{}] [{}] - Validated API response saved to database", name, requestNumber);
         } catch (Exception e) {
             log.error("[{}] [{}] - API response validation failed", name, requestNumber, e);
+            saveError(requestNumber, "validateAPIResponse", e);
             throw new RuntimeException("API response validation failed", e);
         }
 
@@ -179,8 +282,11 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
             response = generateResponse(request, apiResponse);
             log.debug("[{}] [{}] - Response generated successfully", name, requestNumber);
             log.debug("[{}] [{}] - Generated response object: {}", name, requestNumber, response);
+            saveResponseGenerated(requestNumber, response);
+            log.debug("[{}] [{}] - Generated response saved to database", name, requestNumber);
         } catch (Exception e) {
             log.error("[{}] [{}] - Error generating response", name, requestNumber, e);
+            saveError(requestNumber, "generateResponse", e);
             throw new RuntimeException("Failed to generate response", e);
         }
 
@@ -188,9 +294,12 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
             String serializedResponse = serializeResponse(response);
             log.debug("[{}] [{}] - Response serialized successfully", name, requestNumber);
             log.debug("[{}] [{}] - Final response body: {}", name, requestNumber, serializedResponse);
+            saveFinalResponse(requestNumber, serializedResponse);
+            log.debug("[{}] [{}] - Final response saved to database", name, requestNumber);
             return serializedResponse;
         } catch (Exception e) {
             log.error("[{}] [{}] - Error serializing response", name, requestNumber, e);
+            saveError(requestNumber, "serializeResponse", e);
             throw new RuntimeException("Failed to serialize response", e);
         }
     }
