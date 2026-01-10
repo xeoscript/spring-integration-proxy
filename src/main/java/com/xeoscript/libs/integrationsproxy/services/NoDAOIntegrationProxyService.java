@@ -123,17 +123,66 @@ public abstract class NoDAOIntegrationProxyService<Request, APIResponse, Respons
     protected abstract String serializeResponse(Response response);
 
     public final String processRequest(String requestBody, WebRequest webRequest) {
-        String requestNumber = generateRequestNumber();
+        String requestNumber;
+        try {
+            requestNumber = generateRequestNumber();
+            log.debug("{} - Request number generated: {}", name, requestNumber);
+        } catch (Exception e) {
+            log.error("{} - Error generating request number", name, e);
+            throw new RuntimeException("Failed to generate request number", e);
+        }
 
-        Request request = parseRequest(requestBody, webRequest);
-        validateRequest(request);
+        Request request;
+        try {
+            request = parseRequest(requestBody, webRequest);
+            log.debug("{} - Request parsed successfully for request number: {}", name, requestNumber);
+        } catch (Exception e) {
+            log.error("{} - Error parsing request for request number: {}", name, requestNumber, e);
+            throw new RuntimeException("Failed to parse request", e);
+        }
 
-        APIResponse apiResponse = performAPI(request);
-        validateAPIResponse(apiResponse);
+        try {
+            validateRequest(request);
+            log.debug("{} - Request validated successfully for request number: {}", name, requestNumber);
+        } catch (Exception e) {
+            log.error("{} - Request validation failed for request number: {}", name, requestNumber, e);
+            throw new RuntimeException("Request validation failed", e);
+        }
 
-        Response response = generateResponse(request, apiResponse);
+        APIResponse apiResponse;
+        try {
+            apiResponse = performAPI(request);
+            log.debug("{} - API call completed successfully for request number: {}", name, requestNumber);
+        } catch (Exception e) {
+            log.error("{} - Error performing API call for request number: {}", name, requestNumber, e);
+            throw new RuntimeException("Failed to perform API call", e);
+        }
 
-        return serializeResponse(response);
+        try {
+            validateAPIResponse(apiResponse);
+            log.debug("{} - API response validated successfully for request number: {}", name, requestNumber);
+        } catch (Exception e) {
+            log.error("{} - API response validation failed for request number: {}", name, requestNumber, e);
+            throw new RuntimeException("API response validation failed", e);
+        }
+
+        Response response;
+        try {
+            response = generateResponse(request, apiResponse);
+            log.debug("{} - Response generated successfully for request number: {}", name, requestNumber);
+        } catch (Exception e) {
+            log.error("{} - Error generating response for request number: {}", name, requestNumber, e);
+            throw new RuntimeException("Failed to generate response", e);
+        }
+
+        try {
+            String serializedResponse = serializeResponse(response);
+            log.debug("{} - Response serialized successfully for request number: {}", name, requestNumber);
+            return serializedResponse;
+        } catch (Exception e) {
+            log.error("{} - Error serializing response for request number: {}", name, requestNumber, e);
+            throw new RuntimeException("Failed to serialize response", e);
+        }
     }
 
 }
