@@ -1,10 +1,14 @@
 package com.xeoscript.libs.integrationsproxy.services;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.WebRequest;
 
 @Slf4j
+@RequiredArgsConstructor
 public abstract class NoDAOIntegrationProxyService<Request, APIResponse, Response> {
+
+    private final String name;
 
     // ---------------------------------------------
     //   Steps Involved in Processing the Request
