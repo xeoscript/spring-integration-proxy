@@ -10,6 +10,8 @@ import java.util.Objects;
 public final class GenericNoDAOIntegrationProxy<Request, APIResponse, Response>
         extends NoDAOIntegrationProxyService<Request, APIResponse, Response> {
 
+    private final RequestNumberGenerator requestNumberGenerator;
+
     private final RequestParser<Request> requestParser;
 
     private final RequestValidator<Request> requestValidator;
@@ -20,6 +22,11 @@ public final class GenericNoDAOIntegrationProxy<Request, APIResponse, Response>
 
     private final ResponseSerializer<Response> responseSerializer;
 
+    @Override
+    protected String generateRequestNumber() {
+        Objects.requireNonNull(requestNumberGenerator, "RequestNumberGenerator cannot be null");
+        return requestNumberGenerator.generateRequestNumber();
+    }
 
     @Override
     protected Request parseRequest(String requestBody, WebRequest webRequest) {

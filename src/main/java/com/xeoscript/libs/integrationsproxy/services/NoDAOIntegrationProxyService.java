@@ -21,6 +21,18 @@ public abstract class NoDAOIntegrationProxyService<Request, APIResponse, Respons
     // 10. Return the serialized Response
 
     /**
+     * Generate a unique request number for tracking purposes
+     *
+     * <p>
+     * Responsibilities
+     * 1. Create a unique identifier for the request
+     * 2. Ensure the identifier is in the correct format
+     *
+     * @return The generated request number
+     */
+    protected abstract String generateRequestNumber();
+
+    /**
      * Parse the incoming web request to extract the request details
      * If any encryption or signature verification is needed, it has to be done here
      *
@@ -107,6 +119,8 @@ public abstract class NoDAOIntegrationProxyService<Request, APIResponse, Respons
     protected abstract String serializeResponse(Response response);
 
     public final String processRequest(String requestBody, WebRequest webRequest) {
+        String requestNumber = generateRequestNumber();
+
         Request request = parseRequest(requestBody, webRequest);
         validateRequest(request);
 
