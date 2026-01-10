@@ -1,10 +1,13 @@
 package com.xeoscript.libs.integrationsproxy.services;
 
 import com.xeoscript.libs.integrationsproxy.components.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.Objects;
 
+@RequiredArgsConstructor
 public final class GenericIntegrationProxy<Request, APIResponse, Response>
         extends IntegrationProxyService<Request, APIResponse, Response> {
 
@@ -20,23 +23,8 @@ public final class GenericIntegrationProxy<Request, APIResponse, Response>
 
     private final ResponseSerializer<Response> responseSerializer;
 
-    public GenericIntegrationProxy(
-            String name,
-            RequestNumberGenerator requestNumberGenerator,
-            RequestParser<Request> requestParser,
-            RequestValidator<Request> requestValidator,
-            APIIntegration<Request, APIResponse> apiIntegration,
-            ResponseValidator<APIResponse> responseValidator,
-            ResponseSerializer<Response> responseSerializer
-    ) {
-        super(name);
-        this.requestNumberGenerator = requestNumberGenerator;
-        this.requestParser = requestParser;
-        this.requestValidator = requestValidator;
-        this.apiIntegration = apiIntegration;
-        this.responseValidator = responseValidator;
-        this.responseSerializer = responseSerializer;
-    }
+    @Getter
+    private final String name;
 
     @Override
     protected String generateRequestNumber() {

@@ -1,14 +1,17 @@
 package com.xeoscript.libs.integrationsproxy.services;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.WebRequest;
 
 @Slf4j
-@RequiredArgsConstructor
 public abstract class IntegrationProxyService<Request, APIResponse, Response> {
 
-    private final String name;
+    /**
+     * Get the name of this integration proxy service for logging purposes
+     *
+     * @return The service name
+     */
+    protected abstract String getName();
 
     // ---------------------------------------------
     //   Steps Involved in Processing the Request
@@ -123,6 +126,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
     protected abstract String serializeResponse(Response response);
 
     public final String processRequest(String requestBody, WebRequest webRequest) {
+        String name = getName();
         log.debug("[{}] - Incoming request body: {}", name, requestBody);
 
         String requestNumber;
