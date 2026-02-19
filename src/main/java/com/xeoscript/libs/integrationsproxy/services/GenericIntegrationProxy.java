@@ -21,7 +21,7 @@ public final class GenericIntegrationProxy<Request, APIResponse, Response>
 
     private final ResponseValidator<APIResponse> responseValidator;
 
-    private final ResponseSerializer<Response> responseSerializer;
+    private final ResponseSerializer<Request, Response> responseSerializer;
 
     @Getter
     private final String name;
@@ -69,9 +69,9 @@ public final class GenericIntegrationProxy<Request, APIResponse, Response>
     }
 
     @Override
-    protected String serializeResponse(Response response) {
+    protected String serializeResponse(Request request, Response response) {
         Objects.requireNonNull(responseSerializer, "ResponseSerializer cannot be null");
         Objects.requireNonNull(response, "Response cannot be null");
-        return responseSerializer.serialize(response);
+        return responseSerializer.serialize(request, response);
     }
 }

@@ -142,7 +142,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param response The final response object
      * @return The serialized response string
      */
-    protected abstract String serializeResponse(Response response);
+    protected abstract String serializeResponse(Request request, Response response);
 
 
     public final String processRequest(String requestBody, WebRequest webRequest) {
@@ -225,7 +225,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
         }
 
         try {
-            String serializedResponse = serializeResponse(response);
+            String serializedResponse = serializeResponse(request, response);
             log.debug("[{}] [{}] - Response serialized successfully", name, requestNumber);
             log.debug("[{}] [{}] - Final response body: {}", name, requestNumber, serializedResponse);
             daoDelegate.saveFinalResponse(requestNumber, serializedResponse);
