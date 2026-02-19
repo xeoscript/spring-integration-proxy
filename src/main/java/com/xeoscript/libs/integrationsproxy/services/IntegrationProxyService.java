@@ -8,11 +8,11 @@ import org.springframework.web.context.request.WebRequest;
 @Slf4j
 public abstract class IntegrationProxyService<Request, APIResponse, Response> {
 
-    protected IntegrationProxyDAOService<Request, APIResponse, Response> daoService;
+    private final IntegrationProxyDAODelegate<Request, APIResponse, Response> daoDelegate = new IntegrationProxyDAODelegate<>();
 
     @Autowired(required = false)
     public void setDaoService(IntegrationProxyDAOService<Request, APIResponse, Response> daoService) {
-        this.daoService = daoService;
+        this.daoDelegate.setDaoService(daoService);
     }
 
     /**
@@ -22,10 +22,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @return The IntegrationRequestStatus object containing all status information, or null if DAO service is not available
      */
     public IntegrationRequestStatus<Request, APIResponse, Response> getRequestStatus(String requestNumber) {
-        if (daoService != null) {
-            return daoService.getRequestStatus(requestNumber);
-        }
-        return null;
+        return daoDelegate.getRequestStatus(requestNumber);
     }
 
     /**
@@ -158,9 +155,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param requestBody   The raw request body
      */
     protected void saveInitialRequest(String requestNumber, String requestBody) {
-        if (daoService != null) {
-            daoService.saveInitialRequest(requestNumber, requestBody);
-        }
+        daoDelegate.saveInitialRequest(requestNumber, requestBody);
     }
 
     /**
@@ -170,9 +165,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param request       The parsed request object
      */
     protected void saveRequestParsed(String requestNumber, Request request) {
-        if (daoService != null) {
-            daoService.saveRequestParsed(requestNumber, request);
-        }
+        daoDelegate.saveRequestParsed(requestNumber, request);
     }
 
     /**
@@ -182,9 +175,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param request       The validated request object
      */
     protected void saveRequestValidated(String requestNumber, Request request) {
-        if (daoService != null) {
-            daoService.saveRequestValidated(requestNumber, request);
-        }
+        daoDelegate.saveRequestValidated(requestNumber, request);
     }
 
     /**
@@ -194,9 +185,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param request       The request object being sent to API
      */
     protected void saveBeforeAPICall(String requestNumber, Request request) {
-        if (daoService != null) {
-            daoService.saveBeforeAPICall(requestNumber, request);
-        }
+        daoDelegate.saveBeforeAPICall(requestNumber, request);
     }
 
     /**
@@ -206,9 +195,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param apiResponse   The API response received
      */
     protected void saveAPIResponse(String requestNumber, APIResponse apiResponse) {
-        if (daoService != null) {
-            daoService.saveAPIResponse(requestNumber, apiResponse);
-        }
+        daoDelegate.saveAPIResponse(requestNumber, apiResponse);
     }
 
     /**
@@ -218,9 +205,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param apiResponse   The validated API response
      */
     protected void saveAPIResponseValidated(String requestNumber, APIResponse apiResponse) {
-        if (daoService != null) {
-            daoService.saveAPIResponseValidated(requestNumber, apiResponse);
-        }
+        daoDelegate.saveAPIResponseValidated(requestNumber, apiResponse);
     }
 
     /**
@@ -230,9 +215,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param response      The generated response object
      */
     protected void saveResponseGenerated(String requestNumber, Response response) {
-        if (daoService != null) {
-            daoService.saveResponseGenerated(requestNumber, response);
-        }
+        daoDelegate.saveResponseGenerated(requestNumber, response);
     }
 
     /**
@@ -242,9 +225,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param serializedResponse The final serialized response string
      */
     protected void saveFinalResponse(String requestNumber, String serializedResponse) {
-        if (daoService != null) {
-            daoService.saveFinalResponse(requestNumber, serializedResponse);
-        }
+        daoDelegate.saveFinalResponse(requestNumber, serializedResponse);
     }
 
     /**
@@ -255,9 +236,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      * @param error         The exception that occurred
      */
     protected void saveError(String requestNumber, String step, Exception error) {
-        if (daoService != null) {
-            daoService.saveError(requestNumber, step, error);
-        }
+        daoDelegate.saveError(requestNumber, step, error);
     }
 
     public final String processRequest(String requestBody, WebRequest webRequest) {
@@ -268,11 +247,11 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
         try {
             requestNumber = generateRequestNumber();
             log.debug("[{}] [{}] - Request number generated", name, requestNumber);
-            saveInitialRequest(requestNumber, requestBody);
+            daoDelegate.saveInitialRequest(requestNumber, requestBody);
             log.debug("[{}] [{}] - Initial request saved to database", name, requestNumber);
         } catch (Exception e) {
             log.error("[{}] - Error generating request number", name, e);
-            saveError(null, "generateRequestNumber", e);
+            daoDelegate.saveError(null, "generateRequestNumber", e);
             throw new RuntimeException("Failed to generate request number", e);
         }
 
@@ -281,48 +260,48 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
             request = parseRequest(requestBody, webRequest);
             log.debug("[{}] [{}] - Request parsed successfully", name, requestNumber);
             log.debug("[{}] [{}] - Parsed request object: {}", name, requestNumber, request);
-            saveRequestParsed(requestNumber, request);
+            daoDelegate.saveRequestParsed(requestNumber, request);
             log.debug("[{}] [{}] - Parsed request saved to database", name, requestNumber);
         } catch (Exception e) {
             log.error("[{}] [{}] - Error parsing request", name, requestNumber, e);
-            saveError(requestNumber, "parseRequest", e);
+            daoDelegate.saveError(requestNumber, "parseRequest", e);
             throw new RuntimeException("Failed to parse request", e);
         }
 
         try {
             validateRequest(request);
             log.debug("[{}] [{}] - Request validated successfully", name, requestNumber);
-            saveRequestValidated(requestNumber, request);
+            daoDelegate.saveRequestValidated(requestNumber, request);
             log.debug("[{}] [{}] - Validated request saved to database", name, requestNumber);
         } catch (Exception e) {
             log.error("[{}] [{}] - Request validation failed", name, requestNumber, e);
-            saveError(requestNumber, "validateRequest", e);
+            daoDelegate.saveError(requestNumber, "validateRequest", e);
             throw new RuntimeException("Request validation failed", e);
         }
 
         APIResponse apiResponse;
         try {
-            saveBeforeAPICall(requestNumber, request);
+            daoDelegate.saveBeforeAPICall(requestNumber, request);
             log.debug("[{}] [{}] - Request saved before API call", name, requestNumber);
             apiResponse = performAPI(request);
             log.debug("[{}] [{}] - API call completed successfully", name, requestNumber);
             log.debug("[{}] [{}] - API response: {}", name, requestNumber, apiResponse);
-            saveAPIResponse(requestNumber, apiResponse);
+            daoDelegate.saveAPIResponse(requestNumber, apiResponse);
             log.debug("[{}] [{}] - API response saved to database", name, requestNumber);
         } catch (Exception e) {
             log.error("[{}] [{}] - Error performing API call", name, requestNumber, e);
-            saveError(requestNumber, "performAPI", e);
+            daoDelegate.saveError(requestNumber, "performAPI", e);
             throw new RuntimeException("Failed to perform API call", e);
         }
 
         try {
             validateAPIResponse(apiResponse);
             log.debug("[{}] [{}] - API response validated successfully", name, requestNumber);
-            saveAPIResponseValidated(requestNumber, apiResponse);
+            daoDelegate.saveAPIResponseValidated(requestNumber, apiResponse);
             log.debug("[{}] [{}] - Validated API response saved to database", name, requestNumber);
         } catch (Exception e) {
             log.error("[{}] [{}] - API response validation failed", name, requestNumber, e);
-            saveError(requestNumber, "validateAPIResponse", e);
+            daoDelegate.saveError(requestNumber, "validateAPIResponse", e);
             throw new RuntimeException("API response validation failed", e);
         }
 
@@ -331,7 +310,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
             response = generateResponse(request, apiResponse);
             log.debug("[{}] [{}] - Response generated successfully", name, requestNumber);
             log.debug("[{}] [{}] - Generated response object: {}", name, requestNumber, response);
-            saveResponseGenerated(requestNumber, response);
+            daoDelegate.saveResponseGenerated(requestNumber, response);
             log.debug("[{}] [{}] - Generated response saved to database", name, requestNumber);
         } catch (Exception e) {
             log.error("[{}] [{}] - Error generating response", name, requestNumber, e);
@@ -343,12 +322,12 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
             String serializedResponse = serializeResponse(response);
             log.debug("[{}] [{}] - Response serialized successfully", name, requestNumber);
             log.debug("[{}] [{}] - Final response body: {}", name, requestNumber, serializedResponse);
-            saveFinalResponse(requestNumber, serializedResponse);
+            daoDelegate.saveFinalResponse(requestNumber, serializedResponse);
             log.debug("[{}] [{}] - Final response saved to database", name, requestNumber);
             return serializedResponse;
         } catch (Exception e) {
             log.error("[{}] [{}] - Error serializing response", name, requestNumber, e);
-            saveError(requestNumber, "serializeResponse", e);
+            daoDelegate.saveError(requestNumber, "serializeResponse", e);
             throw new RuntimeException("Failed to serialize response", e);
         }
     }
