@@ -144,100 +144,6 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      */
     protected abstract String serializeResponse(Response response);
 
-    // ---------------------------------------------
-    //   DAO Methods for Persisting Request/Response Status
-    // ---------------------------------------------
-
-    /**
-     * Save the initial request with generated request number
-     *
-     * @param requestNumber The generated request number
-     * @param requestBody   The raw request body
-     */
-    protected void saveInitialRequest(String requestNumber, String requestBody) {
-        daoDelegate.saveInitialRequest(requestNumber, requestBody);
-    }
-
-    /**
-     * Update status after request parsing
-     *
-     * @param requestNumber The request number
-     * @param request       The parsed request object
-     */
-    protected void saveRequestParsed(String requestNumber, Request request) {
-        daoDelegate.saveRequestParsed(requestNumber, request);
-    }
-
-    /**
-     * Update status after request validation
-     *
-     * @param requestNumber The request number
-     * @param request       The validated request object
-     */
-    protected void saveRequestValidated(String requestNumber, Request request) {
-        daoDelegate.saveRequestValidated(requestNumber, request);
-    }
-
-    /**
-     * Update status before making API call
-     *
-     * @param requestNumber The request number
-     * @param request       The request object being sent to API
-     */
-    protected void saveBeforeAPICall(String requestNumber, Request request) {
-        daoDelegate.saveBeforeAPICall(requestNumber, request);
-    }
-
-    /**
-     * Update status after receiving API response
-     *
-     * @param requestNumber The request number
-     * @param apiResponse   The API response received
-     */
-    protected void saveAPIResponse(String requestNumber, APIResponse apiResponse) {
-        daoDelegate.saveAPIResponse(requestNumber, apiResponse);
-    }
-
-    /**
-     * Update status after API response validation
-     *
-     * @param requestNumber The request number
-     * @param apiResponse   The validated API response
-     */
-    protected void saveAPIResponseValidated(String requestNumber, APIResponse apiResponse) {
-        daoDelegate.saveAPIResponseValidated(requestNumber, apiResponse);
-    }
-
-    /**
-     * Update status after generating final response
-     *
-     * @param requestNumber The request number
-     * @param response      The generated response object
-     */
-    protected void saveResponseGenerated(String requestNumber, Response response) {
-        daoDelegate.saveResponseGenerated(requestNumber, response);
-    }
-
-    /**
-     * Update status with final serialized response
-     *
-     * @param requestNumber      The request number
-     * @param serializedResponse The final serialized response string
-     */
-    protected void saveFinalResponse(String requestNumber, String serializedResponse) {
-        daoDelegate.saveFinalResponse(requestNumber, serializedResponse);
-    }
-
-    /**
-     * Save error details when an exception occurs
-     *
-     * @param requestNumber The request number (may be null if error during generation)
-     * @param step          The step where error occurred
-     * @param error         The exception that occurred
-     */
-    protected void saveError(String requestNumber, String step, Exception error) {
-        daoDelegate.saveError(requestNumber, step, error);
-    }
 
     public final String processRequest(String requestBody, WebRequest webRequest) {
         String name = getName();
@@ -314,7 +220,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
             log.debug("[{}] [{}] - Generated response saved to database", name, requestNumber);
         } catch (Exception e) {
             log.error("[{}] [{}] - Error generating response", name, requestNumber, e);
-            saveError(requestNumber, "generateResponse", e);
+            daoDelegate.saveError(requestNumber, "generateResponse", e);
             throw new RuntimeException("Failed to generate response", e);
         }
 
