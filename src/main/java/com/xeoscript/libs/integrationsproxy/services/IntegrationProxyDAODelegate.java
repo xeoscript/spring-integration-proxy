@@ -1,14 +1,12 @@
 package com.xeoscript.libs.integrationsproxy.services;
 
 import com.xeoscript.libs.integrationsproxy.models.IntegrationRequestStatus;
+import lombok.Setter;
 
+@Setter
 public class IntegrationProxyDAODelegate<Request, APIResponse, Response> {
 
     private IntegrationProxyDAOService<Request, APIResponse, Response> daoService;
-
-    public void setDaoService(IntegrationProxyDAOService<Request, APIResponse, Response> daoService) {
-        this.daoService = daoService;
-    }
 
     /**
      * Get the current status of a request by request number
