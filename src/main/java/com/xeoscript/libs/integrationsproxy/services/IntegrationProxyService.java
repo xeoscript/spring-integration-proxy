@@ -243,6 +243,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
         try {
             serializedResponse = serializeResponse(request, response);
             log.debug("[{}] [{}] - Response serialized successfully", name, requestNumber);
+            log.info("[{}] [{}] - Serialized response body: {}", name, requestNumber, serializedResponse);
         } catch (Exception e) {
             log.error("[{}] [{}] - Error serializing response", name, requestNumber, e);
             daoDelegate.saveError(requestNumber, "serializeResponse", e);
@@ -251,7 +252,7 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
 
         try {
             String finalResponse = encryptResponse(serializedResponse, requestNumber, request, response);
-            log.debug("[{}] [{}] - Final response body: {}", name, requestNumber, finalResponse);
+            log.info("[{}] [{}] - Final response body: {}", name, requestNumber, finalResponse);
             daoDelegate.saveFinalResponse(requestNumber, serializedResponse);
             log.debug("[{}] [{}] - Final response saved to database", name, requestNumber);
             return finalResponse;
