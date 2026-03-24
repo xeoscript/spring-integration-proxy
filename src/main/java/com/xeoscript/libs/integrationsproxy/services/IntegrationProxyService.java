@@ -44,7 +44,8 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
     // 7. Validate the Response
     // 8. Create the final Response object
     // 9. Serialize the final Response object
-    // 10. Return the serialized Response
+    // 10. Encrypt and Sign the serialized Response if needed
+    // 10. Return the final Response to the client
 
     /**
      * Generate a unique request number for tracking purposes
@@ -144,6 +145,20 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
      */
     protected abstract String serializeResponse(Request request, Response response);
 
+    /**
+     * Encrypt the serialized response if needed. By default, it returns the serialized response as is.
+     *
+     * <p>
+     * Responsibilities
+     * 1. Encrypt the serialized response if encryption is required
+     * 2. Handle any encryption errors
+     *
+     * @param serializedResponse The serialized response string
+     * @return The encrypted response string if encryption is performed, otherwise the original serialized response
+     */
+    protected String encryptResponse(String serializedResponse, String requestNumber, Request request, Response response) {
+        return serializedResponse;
+    }
 
     public final String processRequest(String requestBody, WebRequest webRequest) {
         String name = getName();
@@ -224,17 +239,26 @@ public abstract class IntegrationProxyService<Request, APIResponse, Response> {
             throw new RuntimeException("Failed to generate response", e);
         }
 
+        String serializedResponse;
         try {
-            String serializedResponse = serializeResponse(request, response);
+            serializedResponse = serializeResponse(request, response);
             log.debug("[{}] [{}] - Response serialized successfully", name, requestNumber);
-            log.debug("[{}] [{}] - Final response body: {}", name, requestNumber, serializedResponse);
-            daoDelegate.saveFinalResponse(requestNumber, serializedResponse);
-            log.debug("[{}] [{}] - Final response saved to database", name, requestNumber);
-            return serializedResponse;
         } catch (Exception e) {
             log.error("[{}] [{}] - Error serializing response", name, requestNumber, e);
             daoDelegate.saveError(requestNumber, "serializeResponse", e);
             throw new RuntimeException("Failed to serialize response", e);
+        }
+
+        try {
+            String finalResponse = encryptResponse(serializedResponse, requestNumber, request, response);
+            log.debug("[{}] [{}] - Final response body: {}", name, requestNumber, finalResponse);
+            daoDelegate.saveFinalResponse(requestNumber, serializedResponse);
+            log.debug("[{}] [{}] - Final response saved to database", name, requestNumber);
+            return finalResponse;
+        } catch (Exception e) {
+            log.error("[{}] [{}] - Error saving final response", name, requestNumber, e);
+            daoDelegate.saveError(requestNumber, "saveFinalResponse", e);
+            throw new RuntimeException("Failed to save final response", e);
         }
     }
 
